@@ -1,25 +1,36 @@
 from fastapi import APIRouter
-from models.users import User
-from config.database import db_collection
-from schemas.users import list_serial
+from models.users import Login, User
+from config.database import db_database as db
+from schemas.users import individual_serial, list_serial
 from bson import ObjectId
+
+from utils.auth_handler import get_password_hash, sign_jwt, verify_password
 
 user_router = APIRouter()
 
-@user_router.get("/user")
-async def get_users():
-    print(db_collection.find())
-    users = list_serial(db_collection.find())
-    return users
+@user_router.post("/login")
+async def login_user(user: Login):
+    db_user = individual_serial(db['users'].find_one(
+            {'email': user.email}
+    ))
+    if db_user:
+        if verify_password(user.password, db_user["password"]):
+            token = sign_jwt(db_user['id'])
+            return {"message": "Login Successfull", "access_token": token["access_token"]} 
+        else:
+            return {"message": "Password is wrong"} 
+    else:
+        return {"message": "User Not found"}
 
 
-@user_router.post("/user")
-async def post_users(user: User):
-    if len(list_serial(db_collection.find(
+@user_router.post("/signup")
+async def signup_user(user: User):
+    if len(list_serial(db['users'].find(
             {'email': user.email}
     ))) > 0:
         return {"message": "User already Exists"} 
     else:
-        db_collection.insert_one(dict(user))
-    return {"message": "User Created", "name" : user.name, "email" : user.email}
+        user.password = get_password_hash(user.password)
+        db['users'].insert_one(dict(user))
+        return {"message": "User Created", "name" : user.name, "email" : user.email}
     
