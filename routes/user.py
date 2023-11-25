@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.users import Login, User
 from config.database import db_database as db
 from schemas.users import individual_serial, list_serial
 from bson import ObjectId
+from utils.auth_bearer import JWTBearer
 
 from utils.auth_handler import get_password_hash, sign_jwt, verify_password
 
@@ -34,3 +35,7 @@ async def signup_user(user: User):
         db['users'].insert_one(dict(user))
         return {"message": "User Created", "name" : user.name, "email" : user.email}
     
+
+@user_router.get("/users",dependencies=[Depends(JWTBearer())], tags=["users"])
+async def get_all_users():
+    return list_serial(db['users'].find())
