@@ -13,4 +13,4 @@ def individual_serial(user: User) -> dict:
         return {}
 
 def list_serial(users) -> list:
-    return[individual_serial(user) for user in users]
+    return [individual_serial(user) for user in users]

@@ -9,7 +9,7 @@ from utils.auth_handler import get_password_hash, sign_jwt, verify_password
 
 user_router = APIRouter()
 
-@user_router.post("/login")
+@user_router.post("/login",tags=["Authentication"])
 async def login_user(user: Login):
     db_user = individual_serial(db['users'].find_one(
             {'email': user.email}
@@ -24,7 +24,7 @@ async def login_user(user: Login):
         return {"message": "User Not found"}
 
 
-@user_router.post("/signup")
+@user_router.post("/signup", tags=["Authentication"])
 async def signup_user(user: User):
     if len(list_serial(db['users'].find(
             {'email': user.email}
@@ -36,6 +36,6 @@ async def signup_user(user: User):
         return {"message": "User Created", "name" : user.name, "email" : user.email}
     
 
-@user_router.get("/users",dependencies=[Depends(JWTBearer())], tags=["users"])
+@user_router.get("/users", dependencies=[Depends(JWTBearer())], tags=["Users"])
 async def get_all_users():
     return list_serial(db['users'].find())
