@@ -7,3 +7,5 @@ class Product(BaseModel):
     price: int
     image: str
 
+class Category(BaseModel):
+    title: str

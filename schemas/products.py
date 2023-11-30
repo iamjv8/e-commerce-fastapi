@@ -1,4 +1,4 @@
-from models.product import Product
+from models.product import Category, Product
 
 
 def individual_serial(product: Product) -> dict:
@@ -15,3 +15,15 @@ def individual_serial(product: Product) -> dict:
 
 def list_serial(products) -> list:
     return [individual_serial(product) for product in products]
+
+
+def individual_serial_category(category: Category) -> dict:
+    if category:
+        return {
+            "id": str(category["_id"]),
+            "title": category["title"],
+        }
+    
+
+def list_serial_category(categories) -> list:
+    return [individual_serial_category(category) for category in categories]
